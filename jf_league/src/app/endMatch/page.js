@@ -39,7 +39,7 @@ export default function EndMatchPage() {
         await updateDoc(ref, { finalized: true }); // optional flag
       }
       localStorage.clear();
-      router.push('/stats'); // Or home
+      router.push('/matchStats'); // Or home
     } catch (err) {
       console.error('Error finalizing match:', err);
       alert('Error saving match.');

@@ -8,11 +8,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export default function SelectPlayersPage() {
   const [players, setPlayers] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [excludedIds, setExcludedIds] = useState([]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const team = searchParams.get('team') || 'Blanc'; 
+  const team = searchParams.get('team') || 'Blanc'; // Default team is Blanc
 
-  // Fetch all players
+  // Fetch all players from Firebase
   useEffect(() => {
     const fetchPlayers = async () => {
       const snapshot = await getDocs(collection(db, 'players'));
@@ -20,7 +21,13 @@ export default function SelectPlayersPage() {
       setPlayers(data);
     };
     fetchPlayers();
-  }, []);
+
+    // Exclude players already selected in teamBlanc when selecting teamNegre
+    if (team === 'Negre') {
+      const alreadyPicked = JSON.parse(localStorage.getItem('teamBlanc') || '[]');
+      setExcludedIds(alreadyPicked);
+    }
+  }, [team]);
 
   const togglePlayer = (id) => {
     setSelected(prev =>
@@ -44,22 +51,27 @@ export default function SelectPlayersPage() {
       <p className="font-semibold mb-2">Selecciona jugadors de l'equip {team}</p>
 
       <div className="grid grid-cols-3 gap-4">
-        {players.map(player => (
-          <button
-            key={player.id}
-            className={`w-20 h-24 bg-gray-300 rounded ${
-              selected.includes(player.id) ? 'ring-4 ring-blue-500' : ''
-            }`}
-            onClick={() => togglePlayer(player.id)}
-          >
-            <div className="text-2xl">{player.avatar || '👤'}</div>
-            <div className="text-xs mt-1 text-center">{player.name}</div>
-          </button>
-        ))}
+        {players.map(player => {
+          const isDisabled = excludedIds.includes(player.id);
+          return (
+            <button
+              key={player.id}
+              disabled={isDisabled}
+              className={`w-20 h-24 rounded flex flex-col items-center justify-center
+                ${selected.includes(player.id) ? 'bg-blue-400 ring-4 ring-blue-600' : 'bg-gray-300'}
+                ${isDisabled ? 'opacity-30 cursor-not-allowed' : ''}
+              `}
+              onClick={() => !isDisabled && togglePlayer(player.id)}
+            >
+              <div className="text-2xl">{player.avatar || '👤'}</div>
+              <div className="text-xs mt-1 text-center">{player.name}</div>
+            </button>
+          );
+        })}
       </div>
 
       <button className="mt-6 bg-black text-white px-4 py-2 rounded" onClick={nextStep}>
-        {team === 'A' ? 'Next: Team Negre' : 'Start Match'}
+        {team === 'Blanc' ? 'Següent: Equip Negre' : 'Inicia el partit'}
       </button>
     </div>
   );

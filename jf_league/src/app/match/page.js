@@ -23,23 +23,27 @@ export default function MatchPage() {
   const router = useRouter();
 
   // Load full player data from Firestore
-  useEffect(() => {
-    const fetchSelectedPlayers = async () => {
-      const selectedIds = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
+ useEffect(() => {
+  const fetchSelectedPlayers = async () => {
+    const teamBlancIds = JSON.parse(localStorage.getItem('teamBlanc') || '[]');
+    const teamNegreIds = JSON.parse(localStorage.getItem('teamNegre') || '[]');
 
-      const promises = selectedIds.map(async (id) => {
-        const docRef = doc(db, 'players', id);
-        const snapshot = await getDoc(docRef);
-        return { id, ...snapshot.data() };
-      });
+    const allIds = Array.from(new Set([...teamBlancIds, ...teamNegreIds]));
+
+    const promises = allIds.map(async (id) => {
+      const docRef = doc(db, 'players', id);
+      const snapshot = await getDoc(docRef);
+      return { id, ...snapshot.data() };
+    });
+
+    const fullPlayers = await Promise.all(promises);
+    setPlayers(fullPlayers);
+  };
+
+  fetchSelectedPlayers();
+}, []);
 
 
-      const fullPlayers = await Promise.all(promises);
-      setPlayers(fullPlayers);
-    };
-
-    fetchSelectedPlayers();
-  }, []);
 
   useEffect(() => {
   const blanc = JSON.parse(localStorage.getItem('teamBlanc') || '[]');

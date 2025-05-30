@@ -9,23 +9,22 @@ const POINTS = {
   ATURADA: 3,
   PENALTI: 1,
   FALTA: -1,
-  GUANYAR: 3,
 };
 
-export default function StatsPage() {
-  const [scores, setScores] = useState([]);
+export default function MatchStatsPage() {
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      const q = query(collection(db, 'matchActions'), where('game', '==', 'Jornada 1'));
+    const fetchMatchStats = async () => {
+      const q = query(collection(db, 'matchActions'), where('game', '==', 'Jornada 1')); // You could store this dynamically
       const snapshot = await getDocs(q);
       const actions = snapshot.docs.map(doc => doc.data());
 
-      const scoreMap = {};
+      const map = {};
 
       actions.forEach(({ playerId, playerName, avatar, action }) => {
-        if (!scoreMap[playerId]) {
-          scoreMap[playerId] = {
+        if (!map[playerId]) {
+          map[playerId] = {
             name: playerName,
             avatar: avatar || '👤',
             score: 0,
@@ -33,27 +32,27 @@ export default function StatsPage() {
           };
         }
 
-        scoreMap[playerId].score += POINTS[action] || 0;
-        scoreMap[playerId].counts[action] += 1;
+        map[playerId].counts[action]++;
+        map[playerId].score += POINTS[action] || 0;
       });
 
-      // Convert to array and sort by score
-      const scoreArray = Object.entries(scoreMap).map(([id, data]) => ({
+      const result = Object.entries(map).map(([id, data]) => ({
         id,
         ...data,
       }));
 
-      scoreArray.sort((a, b) => b.score - a.score);
-      setScores(scoreArray);
+      result.sort((a, b) => b.score - a.score);
+
+      setStats(result);
     };
 
-    fetchStats();
+    fetchMatchStats();
   }, []);
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Jornada 1 – Estadístiques</h1>
-      {scores.map(player => (
+      <h1 className="text-2xl font-bold mb-4">Estadístiques del Partit</h1>
+      {stats.map(player => (
         <div
           key={player.id}
           className="flex items-center justify-between border-b py-2"
@@ -70,6 +69,15 @@ export default function StatsPage() {
           <div className="text-lg font-bold">{player.score} pts</div>
         </div>
       ))}
+     <div className="flex flex-col gap-4 w-full max-w-xs">
+          <a
+            href="/"
+            className="bg-black text-white text-center px-6 py-3 rounded hover:bg-gray-800 transition"
+          >
+            Go Home
+          </a>
+          
+        </div>
     </div>
   );
 }
