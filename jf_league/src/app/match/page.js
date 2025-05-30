@@ -1,25 +1,59 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { db } from '../../firebase/firebase';
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  addDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 const actions = ['GOL', 'ATURADA', 'PENALTI', 'FALTA'];
 
 export default function MatchPage() {
-  const [selectedPlayers, setSelectedPlayers] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [action, setAction] = useState(null);
   const [actor, setActor] = useState(null);
 
+  // Load full player data from Firestore
   useEffect(() => {
-    const players = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
-    setSelectedPlayers(players);
+    const fetchSelectedPlayers = async () => {
+      const selectedIds = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
+
+      const promises = selectedIds.map(async (id) => {
+        const docRef = doc(db, 'players', id);
+        const snapshot = await getDoc(docRef);
+        return { id, ...snapshot.data() };
+      });
+
+      const fullPlayers = await Promise.all(promises);
+      setPlayers(fullPlayers);
+    };
+
+    fetchSelectedPlayers();
   }, []);
 
-  const handleSubmit = () => {
-    if (action && actor) {
-      // You will later send this to Firebase
-      console.log(`Action: ${action}, Player: ${actor}`);
+  const handleSubmit = async () => {
+    if (!action || !actor) return;
+
+    try {
+      await addDoc(collection(db, 'matchActions'), {
+        action,
+        playerId: actor.id,
+        playerName: actor.name,
+        avatar: actor.avatar || '👤',
+        timestamp: serverTimestamp(),
+        game: 'Jornada 1',
+      });
+      alert(`Action saved: ${action} by ${actor.name}`);
       setAction(null);
       setActor(null);
+    } catch (err) {
+      console.error('Error saving action:', err);
+      alert('Error saving to Firestore');
     }
   };
 
@@ -46,15 +80,16 @@ export default function MatchPage() {
         <>
           <p className="mb-2">Selecciona jugador:</p>
           <div className="grid grid-cols-3 gap-2 mb-4">
-            {selectedPlayers.map((player) => (
+            {players.map((player) => (
               <button
-                key={player}
-                className={`w-20 h-20 bg-gray-200 rounded ${
-                  actor === player ? 'ring-4 ring-blue-500' : ''
+                key={player.id}
+                className={`w-20 h-24 bg-gray-200 rounded flex flex-col items-center justify-center ${
+                  actor?.id === player.id ? 'ring-4 ring-blue-500' : ''
                 }`}
                 onClick={() => setActor(player)}
               >
-                👤
+                <div className="text-2xl">{player.avatar || '👤'}</div>
+                <div className="text-xs mt-1 text-center">{player.name}</div>
               </button>
             ))}
           </div>
