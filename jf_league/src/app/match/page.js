@@ -10,6 +10,7 @@ import {
   addDoc,
   serverTimestamp,
 } from 'firebase/firestore';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const actions = ['GOL', 'ATURADA', 'PENALTI', 'FALTA'];
 
@@ -19,7 +20,7 @@ export default function MatchPage() {
   const [actor, setActor] = useState(null);
   const teamBlancIds = JSON.parse(localStorage.getItem('Blanc') || '[]');
   const teamNegreIds = JSON.parse(localStorage.getItem('Negre') || '[]');
-
+  const router = useRouter();
 
   // Load full player data from Firestore
   useEffect(() => {
@@ -69,6 +70,11 @@ export default function MatchPage() {
       alert('Error saving to Firestore');
     }
   };
+
+  const endMatch = () =>{
+    router.push("/endMatch");
+  }
+
   return (
     <div className="p-4 flex flex-col items-center">
       <h1 className="text-2xl font-bold">JF LEAGUE</h1>
@@ -110,6 +116,9 @@ export default function MatchPage() {
 
       <button className="bg-gray-300 px-4 py-2 rounded" onClick={handleSubmit}>
         SUBMIT
+      </button>
+      <button className="bg-gray-300 px-4 py-2 rounded" onClick={endMatch}>
+        ACABA EL PARTIT
       </button>
     </div>
   );
