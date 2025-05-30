@@ -17,6 +17,9 @@ export default function MatchPage() {
   const [players, setPlayers] = useState([]);
   const [action, setAction] = useState(null);
   const [actor, setActor] = useState(null);
+  const teamBlancIds = JSON.parse(localStorage.getItem('Blanc') || '[]');
+  const teamNegreIds = JSON.parse(localStorage.getItem('Negre') || '[]');
+
 
   // Load full player data from Firestore
   useEffect(() => {
@@ -29,12 +32,22 @@ export default function MatchPage() {
         return { id, ...snapshot.data() };
       });
 
+
       const fullPlayers = await Promise.all(promises);
       setPlayers(fullPlayers);
     };
 
     fetchSelectedPlayers();
   }, []);
+
+  useEffect(() => {
+  const blanc = JSON.parse(localStorage.getItem('teamBlanc') || '[]');
+  const negre = JSON.parse(localStorage.getItem('teamNegre') || '[]');
+
+  console.log('Team Blanc:', blanc);
+  console.log('Team Negre:', negre);
+}, []);
+
 
   const handleSubmit = async () => {
     if (!action || !actor) return;
@@ -56,7 +69,6 @@ export default function MatchPage() {
       alert('Error saving to Firestore');
     }
   };
-
   return (
     <div className="p-4 flex flex-col items-center">
       <h1 className="text-2xl font-bold">JF LEAGUE</h1>
