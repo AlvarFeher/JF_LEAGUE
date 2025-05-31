@@ -10,6 +10,7 @@ const POINTS = {
   PENALTI: 1,
   FALTA: -1,
   GUANYAR: 3,
+  ASSIST:1
 };
 
 export default function StatsPage() {
@@ -29,7 +30,7 @@ export default function StatsPage() {
             name: playerName,
             avatar: avatar || '👤',
             score: 0,
-            counts: { GOL: 0, ATURADA: 0, PENALTI: 0, FALTA: 0 },
+            counts: { GOL: 0, ATURADA: 0, PENALTI: 0, FALTA: 0,ASSIST: 0 },
           };
         }
 
@@ -52,7 +53,8 @@ export default function StatsPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Jornada 1 – Estadístiques</h1>
+      <h1 className="text-2xl font-bold mb-4">Estadístiques Globals</h1>
+      <p>(Lluis no falla)</p>
       {scores.map(player => (
         <div
           key={player.id}
@@ -63,7 +65,7 @@ export default function StatsPage() {
             <div>
               <div className="font-semibold">{player.name}</div>
               <div className="text-xs text-gray-500">
-                GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | PENALTI: {player.counts.PENALTI} | FALTA: {player.counts.FALTA}
+                GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | PENALTI: {player.counts.PENALTI} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST}
               </div>
             </div>
           </div>

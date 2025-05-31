@@ -9,6 +9,7 @@ const POINTS = {
     ATURADA: 3,
     PENALTI: 1,
     FALTA: -1,
+    ASSIST:1
 };
 
 export default function MatchStatsPage() {

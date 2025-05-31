@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const actions = ['GOL', 'ATURADA', 'PENALTI', 'FALTA'];
+const actions = ['GOL', 'ATURADA', 'PENALTI', 'FALTA', 'ASSIST'];
 
 export default function MatchPage() {
   const [players, setPlayers] = useState([]);
