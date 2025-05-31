@@ -38,7 +38,7 @@ export default function EndMatchPage() {
         const ref = doc(db, 'matchActions', action.id);
         await updateDoc(ref, { finalized: true }); // optional flag
       }
-      localStorage.clear();
+      //localStorage.clear();
       router.push('/matchStats'); // Or home
     } catch (err) {
       console.error('Error finalizing match:', err);

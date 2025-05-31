@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { db } from '../../firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid'; // generate unique id 
 
 export default function SelectPlayersPage() {
   const [players, setPlayers] = useState([]);
@@ -40,6 +41,8 @@ export default function SelectPlayersPage() {
     if (team === 'Blanc') {
       router.push('/select_players?team=Negre');
     } else {
+        const matchId=uuidv4();
+        localStorage.setItem("currentMatchId", matchId);
       router.push('/match');
     }
   };

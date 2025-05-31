@@ -21,6 +21,7 @@ export default function MatchPage() {
   const teamBlancIds = JSON.parse(localStorage.getItem('Blanc') || '[]');
   const teamNegreIds = JSON.parse(localStorage.getItem('Negre') || '[]');
   const router = useRouter();
+  const matchId = localStorage.getItem('currentMatchId');
 
   // Load full player data from Firestore
  useEffect(() => {
@@ -64,6 +65,7 @@ export default function MatchPage() {
         playerName: actor.name,
         avatar: actor.avatar || '👤',
         timestamp: serverTimestamp(),
+        matchId,
         game: 'Jornada 1',
       });
       alert(`Action saved: ${action} by ${actor.name}`);
