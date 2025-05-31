@@ -17,7 +17,7 @@ export default function EndMatchPage() {
   const [loading, setLoading] = useState(false);
   const [matchActions, setMatchActions] = useState([]);
   const router = useRouter();
-  const gameId = 'Jornada 1'; // You could make this dynamic
+  const gameId = 'Jornada 1'; 
 
   useEffect(() => {
 

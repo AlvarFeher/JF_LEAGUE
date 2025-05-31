@@ -18,17 +18,18 @@ export default function MatchPage() {
   const [players, setPlayers] = useState([]);
   const [action, setAction] = useState(null);
   const [actor, setActor] = useState(null);
-  const teamBlancIds = JSON.parse(localStorage.getItem('Blanc') || '[]');
-  const teamNegreIds = JSON.parse(localStorage.getItem('Negre') || '[]');
+  const [matchId, setMatchId] = useState(null);
+
   const router = useRouter();
-  const matchId = localStorage.getItem('currentMatchId');
+ 
 
   // Load full player data from Firestore
  useEffect(() => {
   const fetchSelectedPlayers = async () => {
     const teamBlancIds = JSON.parse(localStorage.getItem('teamBlanc') || '[]');
     const teamNegreIds = JSON.parse(localStorage.getItem('teamNegre') || '[]');
-
+    const matchId = localStorage.getItem('currentMatchId');
+    setMatchId(matchId);
     const allIds = Array.from(new Set([...teamBlancIds, ...teamNegreIds]));
 
     const promises = allIds.map(async (id) => {
