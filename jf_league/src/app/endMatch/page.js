@@ -20,8 +20,10 @@ export default function EndMatchPage() {
   const gameId = 'Jornada 1'; // You could make this dynamic
 
   useEffect(() => {
+
     const loadActions = async () => {
-      const q = query(collection(db, 'matchActions'), where('game', '==', gameId));
+      const matchId = localStorage.getItem('currentMatchId');
+      const q = query(collection(db, 'matchActions'), where('matchId', '==', matchId));
       const snapshot = await getDocs(q);
       const actions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setMatchActions(actions);
@@ -48,21 +50,26 @@ export default function EndMatchPage() {
     }
   };
 
-  const handleCancel = async () => {
-    setLoading(true);
-    try {
-      for (const action of matchActions) {
-        await deleteDoc(doc(db, 'matchActions', action.id));
-      }
-      localStorage.clear();
-      router.push('/');
-    } catch (err) {
-      console.error('Error cancelling match:', err);
-      alert('Error cancelling match.');
-    } finally {
-      setLoading(false);
+ const handleCancel = async () => {
+  setLoading(true);
+  try {
+    for (const action of matchActions) {
+      await deleteDoc(doc(db, 'matchActions', action.id));
     }
-  };
+
+    localStorage.removeItem('currentMatchId');
+    localStorage.removeItem('teamBlanc');
+    localStorage.removeItem('teamNegre');
+
+    router.push('/');
+  } catch (err) {
+    console.error('Error cancelling match:', err);
+    alert('Error cancelling match.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="p-6 flex flex-col items-center">
