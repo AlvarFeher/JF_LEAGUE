@@ -8,7 +8,7 @@ import {
   doc,
   getDoc,
   addDoc,
-  serverTimestamp,
+  serverTimestamp,query,where
 } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -19,9 +19,33 @@ export default function MatchPage() {
   const [action, setAction] = useState(null);
   const [actor, setActor] = useState(null);
   const [matchId, setMatchId] = useState(null);
+  const [teamGoals, setTeamGoals] = useState({ Blanc: 0, Negre: 0 });
 
   const router = useRouter();
  
+const fetchGoals = async () => {
+    if (!matchId) return;
+
+    const snapshot = await getDocs(
+      query(collection(db, 'matchActions'), where('matchId', '==', matchId))
+    );
+    const actions = snapshot.docs.map(doc => doc.data());
+
+    const blancIds = JSON.parse(localStorage.getItem('teamBlanc') || '[]');
+    const negreIds = JSON.parse(localStorage.getItem('teamNegre') || '[]');
+
+    let blancGoals = 0;
+    let negreGoals = 0;
+
+    actions.forEach(({ playerId, action }) => {
+      if (action === 'GOL') {
+        if (blancIds.includes(playerId)) blancGoals += 1;
+        else if (negreIds.includes(playerId)) negreGoals += 1;
+      }
+    });
+
+    setTeamGoals({ Blanc: blancGoals, Negre: negreGoals });
+  };
 
   // Load full player data from Firestore
  useEffect(() => {
@@ -42,7 +66,9 @@ export default function MatchPage() {
     setPlayers(fullPlayers);
   };
 
+  
   fetchSelectedPlayers();
+  fetchGoals();
 }, []);
 
 
@@ -68,24 +94,57 @@ export default function MatchPage() {
         timestamp: serverTimestamp(),
         matchId,
         game: 'Jornada 1',
+        winner: localStorage.getItem("winner") || null
       });
       alert(`Action saved: ${action} by ${actor.name}`);
       setAction(null);
       setActor(null);
+      await fetchGoals();
     } catch (err) {
       console.error('Error saving action:', err);
       alert('Error saving to Firestore');
     }
   };
 
-  const endMatch = () =>{
-    router.push("/endMatch");
+const endMatch = async () => {
+  const teamBlanc = JSON.parse(localStorage.getItem('teamBlanc') || '[]');
+  const teamNegre = JSON.parse(localStorage.getItem('teamNegre') || '[]');
+  const matchId = localStorage.getItem('currentMatchId');
+
+  let winner = null;
+  if (teamGoals.Blanc > teamGoals.Negre) {
+    winner = 'Blanc';
+  } else if (teamGoals.Blanc < teamGoals.Negre) {
+    winner = 'Negre';
   }
+
+  try {
+    await addDoc(collection(db, 'matches'), {
+      matchId,
+      winner,
+      teamBlanc,
+      teamNegre,
+      createdAt: serverTimestamp()
+    });
+
+    localStorage.setItem('winner', winner || '');
+    router.push('/endMatch');
+  } catch (err) {
+    console.error('Error saving match result:', err);
+    alert('Error saving match result');
+  }
+  localStorage.removeItem("teamBlanc");
+  localStorage.removeItem("teamNegre");
+};
+
 
   return (
     <div className="p-4 flex flex-col items-center">
       <h1 className="text-2xl font-bold">JF LEAGUE</h1>
       <h2 className="text-lg mb-4">JORNADA 1</h2>
+      <h2 className="text-xl font-semibold mt-4">
+  Caucassic.FC ⚪ {teamGoals.Blanc} - {teamGoals.Negre} ⚫ CottonPickrz
+</h2>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         {actions.map((act) => (

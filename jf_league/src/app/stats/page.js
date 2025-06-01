@@ -16,40 +16,63 @@ const POINTS = {
 export default function StatsPage() {
   const [scores, setScores] = useState([]);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const q = query(collection(db, 'matchActions'), where('game', '==', 'Jornada 1'));
-      const snapshot = await getDocs(q);
-      const actions = snapshot.docs.map(doc => doc.data());
+useEffect(() => {
+  const fetchStats = async () => {
 
-      const scoreMap = {};
+  const playerSnapshot = await getDocs(collection(db, 'players'));
+  const allPlayers = playerSnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 
-      actions.forEach(({ playerId, playerName, avatar, action }) => {
-        if (!scoreMap[playerId]) {
-          scoreMap[playerId] = {
-            name: playerName,
-            avatar: avatar || '👤',
-            score: 0,
-            counts: { GOL: 0, ATURADA: 0, PENALTI: 0, FALTA: 0,ASSIST: 0 },
-          };
-        }
 
-        scoreMap[playerId].score += POINTS[action] || 0;
-        scoreMap[playerId].counts[action] += 1;
-      });
-
-      // Convert to array and sort by score
-      const scoreArray = Object.entries(scoreMap).map(([id, data]) => ({
-        id,
-        ...data,
-      }));
-
-      scoreArray.sort((a, b) => b.score - a.score);
-      setScores(scoreArray);
+  const statsMap = {};
+  allPlayers.forEach(player => {
+    statsMap[player.id] = {
+      id: player.id,
+      name: player.name,
+      avatar: player.avatar || '👤',
+      score: 0,
+      counts: { GOL: 0, ATURADA: 0, PENALTI: 0, FALTA: 0, ASSIST: 0 },
+      wins: 0,
     };
+  });
 
-    fetchStats();
-  }, []);
+  // Fetch all match actions
+  const actionSnapshot = await getDocs(collection(db, 'matchActions'));
+  const actions = actionSnapshot.docs.map(doc => doc.data());
+
+  actions.forEach(({ playerId, action }) => {
+    if (!statsMap[playerId]) return;
+    if (statsMap[playerId].counts[action] === undefined) {
+      statsMap[playerId].counts[action] = 0;
+    }
+    statsMap[playerId].counts[action]++;
+    statsMap[playerId].score += POINTS[action] || 0;
+  });
+
+  const matchSnapshot = await getDocs(collection(db, 'matches'));
+  const matches = matchSnapshot.docs.map(doc => doc.data());
+
+  matches.forEach(match => {
+    const winners = match.winner === 'Blanc' ? match.teamBlanc : match.teamNegre;
+    winners.forEach(playerId => {
+      if (statsMap[playerId]) {
+        statsMap[playerId].wins++;
+        statsMap[playerId].score += POINTS.GUANYAR; // +3 for each win
+      }
+    });
+  });
+
+  const result = Object.values(statsMap).sort((a, b) => b.score - a.score);
+  setScores(result);
+};
+
+
+  fetchStats();
+}, []);
+
+
 
   return (
     <div className="p-6">
@@ -64,9 +87,9 @@ export default function StatsPage() {
             <div className="text-2xl">{player.avatar}</div>
             <div>
               <div className="font-semibold">{player.name}</div>
-              <div className="text-xs text-gray-500">
-                GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | PENALTI: {player.counts.PENALTI} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST}
-              </div>
+            <div className="text-xs text-gray-500">
+  GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | PENALTI: {player.counts.PENALTI} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST} | 🏆 WINS: {player.wins}
+</div>
             </div>
           </div>
           <div className="text-lg font-bold">{player.score} pts</div>
