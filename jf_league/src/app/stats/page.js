@@ -5,12 +5,14 @@ import { db } from '../../firebase/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const POINTS = {
-  GOL: 0.20,
-  ATURADA: 3,
+  GOL: 3,
+  ATURADA: 0.2,
   PENALTI: 1,
   FALTA: -1,
   GUANYAR: 3,
-  ASSIST:1
+  ASSIST:1,
+  SAMBA: 0.5,
+  DEFICIT: -1
 };
 
 export default function StatsPage() {
@@ -88,7 +90,7 @@ useEffect(() => {
             <div>
               <div className="font-semibold">{player.name}</div>
             <div className="text-xs text-gray-500">
-  GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | PENALTI: {player.counts.PENALTI} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST} | 🏆 WINS: {player.wins}
+  GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST} | SAMBA:{player.counts.SAMBA} | DEFICIT:{player.counts.DEFICIT} | 🏆 WINS: {player.wins}
 </div>
             </div>
           </div>

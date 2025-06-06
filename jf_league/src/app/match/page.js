@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const actions = ['GOL', 'ATURADA', 'PENALTI', 'FALTA', 'ASSIST'];
+const actions = ['GOL', 'ATURADA','FALTA', 'ASSIST','SAMBA','DEFICIT'];
 
 export default function MatchPage() {
   const [players, setPlayers] = useState([]);
@@ -143,21 +143,22 @@ const endMatch = async () => {
       <h1 className="text-2xl font-bold">JF LEAGUE</h1>
       <h2 className="text-lg mb-4">JORNADA 1</h2>
       <h2 className="text-xl font-semibold mt-4">
-  Caucassic.FC ⚪ {teamGoals.Blanc} - {teamGoals.Negre} ⚫ CottonPickrz
+  Blancs ⚪ {teamGoals.Blanc} - {teamGoals.Negre} ⚫ Negres
 </h2>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         {actions.map((act) => (
-          <button
-            key={act}
-            className={`w-28 h-16 bg-gray-300 rounded font-bold ${
-              action === act ? 'ring-4 ring-green-500' : ''
-            }`}
-            onClick={() => setAction(act)}
-          >
-            {act}
-          </button>
-        ))}
+  <button
+    key={act}
+    className={`w-28 h-16 rounded font-bold ${
+      act === 'SAMBA' ? 'bg-yellow-400 text-white' : 'bg-gray-300'
+    } ${action === act ? 'ring-4 ring-green-500' : ''}`}
+    onClick={() => setAction(act)}
+  >
+    {act}
+  </button>
+))}
+
       </div>
 
       {action && (
