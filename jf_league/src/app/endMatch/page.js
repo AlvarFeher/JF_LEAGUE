@@ -32,34 +32,59 @@ export default function EndMatchPage() {
     loadActions();
   }, []);
 
-  const handleSave = async () => {
-    setLoading(true);
-    try {
-      // Tag actions as finalized (optional)
-      for (const action of matchActions) {
-        const ref = doc(db, 'matchActions', action.id);
-        await updateDoc(ref, { finalized: true }); // optional flag
-      }
-      //localStorage.clear();
-      router.push('/matchStats'); // Or home
-    } catch (err) {
-      console.error('Error finalizing match:', err);
-      alert('Error saving match.');
-    } finally {
-      setLoading(false);
+ const handleSave = async () => {
+  setLoading(true);
+  try {
+    const winner = localStorage.getItem('winner');
+    const matchId = localStorage.getItem('currentMatchId');
+
+    await addDoc(collection(db, 'matches'), {
+      matchId,
+      winner,
+      teamBlanc: JSON.parse(localStorage.getItem('teamBlanc') || '[]'),
+      teamNegre: JSON.parse(localStorage.getItem('teamNegre') || '[]'),
+    });
+
+    
+    for (const action of matchActions) {
+      const ref = doc(db, 'matchActions', action.id);
+      await updateDoc(ref, { finalized: true });
     }
-  };
+
+    router.push('/matchStats');
+  } catch (err) {
+    console.error('Error finalizing match:', err);
+    alert('Error saving match.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
  const handleCancel = async () => {
   setLoading(true);
   try {
+    const matchId = localStorage.getItem('currentMatchId');
+
+    // Delete all match actions
     for (const action of matchActions) {
       await deleteDoc(doc(db, 'matchActions', action.id));
     }
 
-    localStorage.removeItem('currentMatchId');
-    localStorage.removeItem('teamBlanc');
-    localStorage.removeItem('teamNegre');
+    // Also delete match metadata if exists
+    const matchSnapshot = await getDocs(
+      query(collection(db, 'matches'), where('matchId', '==', matchId))
+    );
+
+    for (const docSnap of matchSnapshot.docs) {
+      await deleteDoc(doc(db, 'matches', docSnap.id));
+    }
+
+    // Clear local storage
+    localStorage.removeItem("winner");
+    localStorage.removeItem("currentMatchId");
+    localStorage.removeItem("teamBlanc");
+    localStorage.removeItem("teamNegre");
 
     router.push('/');
   } catch (err) {
