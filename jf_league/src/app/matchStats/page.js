@@ -6,7 +6,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const POINTS = {
     GOL: 3,
-    ATURADA: 3,
+    ATURADA: 0.5,
     PENALTI: 1,
     FALTA: -1,
     ASSIST:1

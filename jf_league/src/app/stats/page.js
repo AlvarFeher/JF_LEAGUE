@@ -6,7 +6,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const POINTS = {
   GOL: 3,
-  ATURADA: 0.2,
+  ATURADA: 0.5,
   PENALTI: 1,
   FALTA: -1,
   GUANYAR: 3,
@@ -35,7 +35,7 @@ useEffect(() => {
       name: player.name,
       avatar: player.avatar || '👤',
       score: 0,
-      counts: { GOL: 0, ATURADA: 0, PENALTI: 0, FALTA: 0, ASSIST: 0 },
+      counts: { GOL: 0, ATURADA: 0, PENALTI: 0, FALTA: 0, ASSIST: 0, SAMBA: 0, DEFICIT: 0 },
       wins: 0,
     };
   });
@@ -90,7 +90,7 @@ useEffect(() => {
             <div>
               <div className="font-semibold">{player.name}</div>
             <div className="text-xs text-gray-500">
-  GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST} | SAMBA:{player.counts.SAMBA} | DEFICIT:{player.counts.DEFICIT} | 🏆 WINS: {player.wins}
+  GOL: {player.counts.GOL} | ATURADA: {player.counts.ATURADA} | FALTA: {player.counts.FALTA} | ASSIST: {player.counts.ASSIST} | SAMBA🤙🏽: {player.counts.SAMBA} | DEFICIT🏳️‍🌈: {player.counts.DEFICIT} | 🏆 WINS: {player.wins}
 </div>
             </div>
           </div>

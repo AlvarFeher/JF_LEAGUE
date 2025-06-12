@@ -10,7 +10,9 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  addDoc
 } from 'firebase/firestore';
+
 import { useRouter } from 'next/navigation';
 
 export default function EndMatchPage() {

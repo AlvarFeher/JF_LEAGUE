@@ -23,6 +23,12 @@ export default function Home() {
           >
             View Stats
           </a>
+           <a
+            href="/newPlayer"
+            className="bg-black text-white text-center px-6 py-3 text-lg rounded hover:bg-gray-800 transition"
+          >
+            Add a New Player
+          </a>
         </div>
       </main>
 
