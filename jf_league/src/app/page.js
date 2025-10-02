@@ -29,6 +29,12 @@ export default function Home() {
           >
             Add a New Player
           </a>
+            <a
+            href="/jaume"
+            className="bg-black text-white text-center px-6 py-3 text-lg rounded hover:bg-gray-800 transition"
+          >
+            Jaume
+          </a>
         </div>
       </main>
 

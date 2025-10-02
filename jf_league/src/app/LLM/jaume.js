@@ -9,6 +9,6 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 
 function getStatsFromDb(){
-
+    
 }
 
